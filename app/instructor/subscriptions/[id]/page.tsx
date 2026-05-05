@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation"
-import { auth } from "@clerk/nextjs"
+import { auth } from "@clerk/nextjs/server"
 import { db } from "@/lib/db"
 import { redirect } from "next/navigation"
 import { SubscriptionDetails } from "@/components/subscription/subscription-details"
