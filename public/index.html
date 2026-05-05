@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STHAVISHTAH YOGA AND WELLNESS</title>
+    <meta name="description" content="Transform your mind, body, and spirit through our holistic yoga and wellness programs.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        /* Layout */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .md-grid-cols-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .md-grid-cols-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* Components */
+        .header {
+            background-color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-img {
+            width: 40px;
+            height: 40px;
+            margin-right: 0.75rem;
+            object-fit: contain;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            color: #6b7280;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #8b5cf6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #7c3aed;
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: #6b7280;
+        }
+
+        .btn-ghost:hover {
+            background-color: #f3f4f6;
+        }
+
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.125rem;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .hero {
+            background-color: #8a4baf;
+            background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            color: white;
+            padding: 4rem 1rem;
+            text-align: center;
+        }
+
+        .hero-logo {
+            width: 96px;
+            height: 96px;
+            background-color: white;
+            border-radius: 50%;
+            padding: 0.5rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .hero-title {
+                font-size: 3.75rem;
+            }
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            max-width: 48rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (min-width: 768px) {
+            .hero-subtitle {
+                font-size: 1.5rem;
+            }
+        }
+
+        .hero-description {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            max-width: 32rem;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .section {
+            padding: 4rem 1rem;
+        }
+
+        .section-light {
+            background-color: #f9fafb;
+        }
+
+        .section-white {
+            background-color: white;
+        }
+
+        .section-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        @media (min-width: 768px) {
+            .section-title {
+                font-size: 2.25rem;
+            }
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            transition: box-shadow 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card-purple {
+            border: 1px solid #e9d5ff;
+        }
+
+        .card-indigo {
+            border: 1px solid #c7d2fe;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .card-title-purple {
+            color: #8b5cf6;
+        }
+
+        .card-title-indigo {
+            color: #6366f1;
+        }
+
+        .batch-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            background-color: #f9fafb;
+            margin-bottom: 1rem;
+        }
+
+        .batch-number {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            border: 1px solid #d1d5db;
+            margin-right: 0.75rem;
+            font-weight: 700;
+        }
+
+        .batch-time {
+            font-weight: 500;
+        }
+
+        .offering-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .offering-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            color: #8b5cf6;
+            margin-bottom: 1rem;
+        }
+
+        .offering-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .offering-description {
+            color: #6b7280;
+        }
+
+        .promotion {
+            background-color: #8a4baf;
+            background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            color: white;
+            padding: 4rem 1rem;
+            text-align: center;
+        }
+
+        .promotion-title {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .promotion-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .qr-container {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .qr-title {
+            color: black;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .qr-placeholder {
+            width: 12rem;
+            height: 12rem;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-placeholder-text {
+            color: #6b7280;
+            font-size: 0.875rem;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .wellness-card {
+            text-align: center;
+        }
+
+        .wellness-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #8b5cf6;
+            margin-bottom: 1rem;
+        }
+
+        .wellness-content {
+            color: #4b5563;
+        }
+
+        .footer {
+            background-color: #1f2937;
+            color: white;
+            padding: 3rem 1rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .footer-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .footer-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            margin-bottom: 1rem;
+        }
+
+        .footer-link {
+            color: #e5e7eb;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer-social {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-social-icon {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.5rem;
+        }
+
+        /* Icons */
+        .icon {
+            display: inline-block;
+            width: 1em;
+            height: 1em;
+            stroke-width: 0;
+            stroke: currentColor;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="flex justify-between items-center">
+                <div class="logo">
+                    <img src="images/logo.png" alt="Sthavishtah Logo" class="logo-img">
+                    <div class="logo-text">
+                        <span class="logo-title">STHAVISHTAH</span>
+                        <span class="logo-subtitle">YOGA AND WELLNESS</span>
+                    </div>
+                </div>
+                <div class="nav-links">
+                    <a href="login.html" class="btn btn-ghost">Login</a>
+                    <a href="register.html" class="btn btn-primary">Register</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-logo">
+                <img src="images/logo.png" alt="Sthavishtah Logo" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+            <h1 class="hero-title">STHAVISHTAH YOGA AND WELLNESS</h1>
+            <p class="hero-subtitle">Welcome to STHAVISHTAH – Your Path to Wellness!</p>
+            <p class="hero-description">We offer yoga and wellness training to help you achieve physical and mental well-being.</p>
+            <div class="hero-buttons">
+                <a href="register.html" class="btn btn-lg" style="background-color: white; color: #8b5cf6;">Register Now</a>
+                <a href="login.html" class="btn btn-lg btn-outline">Login</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tagline Section -->
+    <section class="section section-light">
+        <div class="container text-center">
+            <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">ALIGN YOUR MIND, NOURISH YOUR SOUL</h2>
+            <p style="font-size: 1.25rem; color: #8b5cf6; font-weight: 600;">Sessions starting from April 1, 2025</p>
+        </div>
+    </section>
+
+    <!-- Batch Schedule Section -->
+    <section class="section section-white">
+        <div class="container">
+            <h2 class="section-title">Our Batches</h2>
+
+            <div class="grid md-grid-cols-2" style="max-width: 64rem; margin: 0 auto;">
+                <!-- Morning Batches -->
+                <div class="card card-purple">
+                    <h3 class="card-title card-title-purple">Morning Batch</h3>
+                    <div>
+                        <div class="batch-item">
+                            <span class="batch-number">BATCH 1</span>
+                            <span class="batch-time">5:30 - 6:30</span>
+                        </div>
+                        <div class="batch-item">
+                            <span class="batch-number">BATCH 2</span>
+                            <span class="batch-time">6:40 - 7:40</span>
+                        </div>
+                        <div class="batch-item">
+                            <span class="batch-number">BATCH 3</span>
+                            <span class="batch-time">7:50 - 8:50</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evening Batches -->
+                <div class="card card-indigo">
+                    <h3 class="card-title card-title-indigo">Evening Batch</h3>
+                    <div>
+                        <div class="batch-item">
+                            <span class="batch-number">BATCH 4</span>
+                            <span class="batch-time">5:30 - 6:30</span>
+                        </div>
+                        <div class="batch-item">
+                            <span class="batch-number">BATCH 5</span>
+                            <span class="batch-time">6:40 - 7:40</span>
+                        </div>
+                        <div class="batch-item">
+                            <span class="batch-number">BATCH 6</span>
+                            <span class="batch-time">7:50 - 8:50</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Offerings Section -->
+    <section class="section section-light">
+        <div class="container">
+            <h2 class="section-title">Our Offerings</h2>
+            <div class="grid md-grid-cols-3">
+                <!-- Offering 1 -->
+                <div class="card">
+                    <div class="offering-card">
+                        <svg class="offering-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <h3 class="offering-title">Flexible Batches</h3>
+                        <p class="offering-description">We have six daily sessions, and you can attend any session that fits your schedule. The links will be shared in our community.</p>
+                    </div>
+                </div>
+
+                <!-- Offering 2 -->
+                <div class="card">
+                    <div class="offering-card">
+                        <svg class="offering-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <h3 class="offering-title">Yoga for Health & Flexibility</h3>
+                        <p class="offering-description">Improve mobility, reduce stress, and enhance overall well-being.</p>
+                    </div>
+                </div>
+
+                <!-- Offering 3 -->
+                <div class="card">
+                    <div class="offering-card">
+                        <svg class="offering-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5z"></path>
+                            <path d="M18 8h.01"></path>
+                        </svg>
+                        <h3 class="offering-title">Light Muscle Training</h3>
+                        <p class="offering-description">Strengthen and tone muscles for a healthier body.</p>
+                    </div>
+                </div>
+
+                <!-- Offering 4 -->
+                <div class="card">
+                    <div class="offering-card">
+                        <svg class="offering-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                            <line x1="6" y1="1" x2="6" y2="4"></line>
+                            <line x1="10" y1="1" x2="10" y2="4"></line>
+                            <line x1="14" y1="1" x2="14" y2="4"></line>
+                        </svg>
+                        <h3 class="offering-title">Customized Diet Plans</h3>
+                        <p class="offering-description">We provide tailored nutrition plans to support your weight loss transformation.</p>
+                    </div>
+                </div>
+
+                <!-- Offering 5 -->
+                <div class="card">
+                    <div class="offering-card">
+                        <svg class="offering-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z"></path>
+                            <path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10"></path>
+                        </svg>
+                        <h3 class="offering-title">Mental Wellness Sessions</h3>
+                        <p class="offering-description">Special sessions to help you manage stress, improve focus, and achieve emotional balance.</p>
+                    </div>
+                </div>
+
+                <!-- Offering 6 -->
+                <div class="card">
+                    <div class="offering-card">
+                        <svg class="offering-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h3 class="offering-title">Orientation Sessions</h3>
+                        <p class="offering-description">Get guidance on how to begin your wellness journey with us.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promotion Section -->
+    <section class="promotion">
+        <div class="container">
+            <h2 class="promotion-title">JOIN NOW FOR THE FREE SESSIONS FOR 2 MONTHS</h2>
+            <p class="promotion-subtitle">Sessions starting from April 1</p>
+            <div class="qr-container">
+                <div class="qr-title">SCAN FOR WHATSAPP CHANNEL</div>
+                <div class="qr-placeholder">
+                    <img src="images/whatsapp-qr.png" alt="WhatsApp QR Code" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+            </div>
+            <p style="font-size: 1.125rem; margin-bottom: 2rem;">Join our community and take charge of your health today!</p>
+            <a href="register.html" class="btn btn-lg" style="background-color: white; color: #8b5cf6;">Register Now</a>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section class="section section-white">
+        <div class="container">
+            <h2 class="section-title">PHYSICAL AND MENTAL WELLNESS</h2>
+            <div class="grid md-grid-cols-3" style="max-width: 80rem; margin: 0 auto;">
+                <!-- Wellness Card 1 -->
+                <div class="card">
+                    <div class="wellness-card">
+                        <h3 class="wellness-title">DIET PLANS</h3>
+                        <p class="wellness-content">Our customized diet plans are designed to complement your yoga practice. We focus on balanced nutrition that fuels your body, supports your goals, and promotes overall health. Our experts will guide you through sustainable eating habits that work for your lifestyle.</p>
+                    </div>
+                </div>
+
+                <!-- Wellness Card 2 -->
+                <div class="card">
+                    <div class="wellness-card">
+                        <h3 class="wellness-title">FAT LOSS</h3>
+                        <p class="wellness-content">Our comprehensive approach to fat loss combines targeted yoga poses, light muscle training, and nutritional guidance. We focus on sustainable methods that help you lose weight gradually while building strength and improving flexibility, ensuring long-term results.</p>
+                    </div>
+                </div>
+
+                <!-- Wellness Card 3 -->
+                <div class="card">
+                    <div class="wellness-card">
+                        <h3 class="wellness-title">TRAINING</h3>
+                        <p class="wellness-content">Our training programs are designed for all fitness levels. We incorporate traditional yoga practices with modern exercise techniques to create a holistic approach to fitness. Our experienced instructors provide personalized guidance to help you achieve your wellness goals safely and effectively.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h3 class="footer-title">STHAVISHTAH YOGA</h3>
+                    <p class="footer-text">Transforming lives through authentic yoga practices and holistic wellness approaches.</p>
+                    <p>&copy; <script>document.write(new Date().getFullYear())</script> STHAVISHTAH YOGA. All rights reserved.</p>
+                </div>
+                <div>
+                    <h3 class="footer-title">Contact Us</h3>
+                    <p class="footer-text">Email: sthavishtah2024@gmail.com</p>
+                    <div class="footer-social">
+                        <svg class="footer-social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                        <span>@sthavishtah</span>
+                    </div>
+                    <p class="footer-text">Address: Bengaluru, India</p>
+                </div>
+                <div>
+                    <h3 class="footer-title">Quick Links</h3>
+                    <a href="login.html" class="footer-link">Login</a>
+                    <a href="register.html" class="footer-link">Register</a>
+                    <a href="admin-login.html" class="footer-link">Admin</a>
+                    <a href="about.html" class="footer-link">About Us</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple JavaScript to handle mobile menu toggle if needed
+        document.addEventListener('DOMContentLoaded', function() {
+            // You can add any JavaScript functionality here
+            console.log('STHAVISHTAH YOGA website loaded successfully!');
+        });
+    </script>
+</body>
+</html>

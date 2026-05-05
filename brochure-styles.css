@@ -1,0 +1,100 @@
+@media print {
+  .page {
+    page-break-after: always;
+    margin-bottom: 0;
+  }
+
+  .print-hidden {
+    display: none !important;
+  }
+
+  body {
+    background-color: white;
+  }
+}
+
+@keyframes gentle-sway {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.gentle-sway {
+  animation: gentle-sway 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-float {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 15s ease-in-out infinite;
+}
+
+.forest-button {
+  background: linear-gradient(to right, #2d6a4f, #40916c);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.forest-button:hover {
+  background: linear-gradient(to right, #1b4332, #2d6a4f);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+}
+
+.staggered-fade-in > * {
+  opacity: 0;
+  animation: fade-in 0.8s ease forwards;
+}
+
+.staggered-fade-in > *:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.staggered-fade-in > *:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.staggered-fade-in > *:nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nature-card {
+  transition: all 0.3s ease;
+}
+
+.nature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.forest-badge {
+  border-color: rgba(45, 106, 79, 0.3);
+  color: #2d6a4f;
+}
