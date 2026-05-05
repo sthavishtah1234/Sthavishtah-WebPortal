@@ -17,15 +17,15 @@ const SubscriptionPage = async ({ params }: SubscriptionPageProps) => {
     return redirect("/")
   }
 
-  const subscription = await db.subscription.findUnique({
-    where: {
-      id: params.id,
-    },
-    include: {
-      plan: true,
-      user: true,
-    },
-  })
+  const { data: subscription } = await db
+    .from("subscriptions")
+    .select(`
+      *,
+      plan:plans(*),
+      user:users(*)
+    `)
+    .eq("id", params.id)
+    .single()
 
   if (!subscription) {
     return notFound()
@@ -33,11 +33,11 @@ const SubscriptionPage = async ({ params }: SubscriptionPageProps) => {
 
   if (subscription.userId !== userId) {
     // Check if the user is an admin.  If not, redirect.
-    const user = await db.user.findUnique({
-      where: {
-        id: userId,
-      },
-    })
+    const { data: user } = await db
+      .from("users")
+      .select("*")
+      .eq("id", userId)
+      .single()
 
     if (!user?.isAdmin) {
       return redirect("/instructor/subscriptions")
