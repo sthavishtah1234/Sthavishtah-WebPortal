@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { type NextRequest, NextResponse } from "next/server"
 import { getAISupabaseClient } from "@/lib/ai-supabase-server"
 import { getSupabaseServerClient } from "@/lib/supabase"

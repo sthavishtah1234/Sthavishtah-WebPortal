@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { type NextRequest, NextResponse } from "next/server"
 import { validateToken } from "@/lib/auth-tokens"
 import { getSupabaseServerClient } from "@/lib/supabase"
