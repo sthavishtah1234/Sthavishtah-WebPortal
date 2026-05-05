@@ -11,7 +11,7 @@ interface SubscriptionPageProps {
 }
 
 const SubscriptionPage = async ({ params }: SubscriptionPageProps) => {
-  const { userId } = auth()
+  const { userId } = await auth()
 
   if (!userId) {
     return redirect("/")
