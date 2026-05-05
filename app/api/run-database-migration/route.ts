@@ -1,14 +1,12 @@
 import { createClient } from "@supabase/supabase-js"
 import { NextResponse } from "next/server"
-import fs from "fs"
-import path from "path"
 
-// Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL!
-const supabaseKey = process.env.SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
+export const dynamic = "force-dynamic"
 
 export async function POST(request: Request) {
+  const supabaseUrl = process.env.SUPABASE_URL!
+  const supabaseKey = process.env.SUPABASE_ANON_KEY!
+  const supabase = createClient(supabaseUrl, supabaseKey)
   try {
     // Get the migration file name from the request
     const { fileName } = await request.json()

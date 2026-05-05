@@ -1,9 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-const aiSupabase = createClient(process.env.AI_SUPABASE_URL!, process.env.AI_SUPABASE_ANON_KEY!)
+// Force dynamic so Next.js never tries to statically evaluate this route
+export const dynamic = "force-dynamic"
 
 export async function GET(request: NextRequest) {
+  const url = process.env.AI_SUPABASE_URL
+  const key = process.env.AI_SUPABASE_ANON_KEY
+
+  if (!url || !key) {
+    return NextResponse.json({ error: "AI Supabase not configured" }, { status: 503 })
+  }
+
+  const aiSupabase = createClient(url, key)
+
   try {
     const sessionId = request.nextUrl.searchParams.get("sessionId")
 
