@@ -136,10 +136,10 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-amber-50/30 via-white to-emerald-50/20">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-amber-50/30 via-white to-emerald-50/20 mobile-safe">
       <header
         className={`w-full py-4 px-6 fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled ? "bg-white/95 backdrop-blur-xl shadow-sm border-b border-gray-200" : "bg-transparent"
+          scrolled ? "header-scrolled" : "bg-transparent"
         }`}
       >
         <div className="container mx-auto flex items-center justify-between max-w-7xl">
@@ -190,7 +190,7 @@ export default function Home() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl shadow-lg border-t border-gray-200">
+          <div className="md:hidden absolute top-full left-0 right-0 mobile-nav-overlay shadow-lg border-t border-emerald-100/50">
             <nav className="flex flex-col p-6 gap-4">
               <Link
                 href="/updates"
@@ -239,7 +239,7 @@ export default function Home() {
         )}
       </header>
 
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden wave-divider-bottom">
         <div className="absolute inset-0">
           <Image
             src="/images/serene-forest-meditation.jpg"
@@ -251,18 +251,24 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/60 via-emerald-800/50 to-stone-900/60"></div>
         </div>
 
-        {/* Animated floating particles */}
+        {/* Animated floating particles — fixed positions to avoid SSR hydration mismatch */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(20)].map((_, i) => (
+          {[
+            { l: 12, t: 23, d: 0.5, dur: 9 }, { l: 34, t: 67, d: 1.2, dur: 11 },
+            { l: 56, t: 12, d: 0.8, dur: 10 }, { l: 78, t: 45, d: 2.1, dur: 8  },
+            { l: 9,  t: 81, d: 3.0, dur: 12 }, { l: 45, t: 33, d: 1.5, dur: 9  },
+            { l: 67, t: 72, d: 0.3, dur: 11 }, { l: 23, t: 55, d: 2.7, dur: 10 },
+            { l: 89, t: 18, d: 1.9, dur: 8  }, { l: 5,  t: 40, d: 0.1, dur: 9  },
+            { l: 50, t: 90, d: 4.0, dur: 12 }, { l: 72, t: 28, d: 2.3, dur: 10 },
+            { l: 30, t: 15, d: 0.7, dur: 11 }, { l: 15, t: 60, d: 3.5, dur: 8  },
+            { l: 60, t: 50, d: 1.1, dur: 9  }, { l: 40, t: 80, d: 2.8, dur: 11 },
+            { l: 85, t: 35, d: 0.4, dur: 10 }, { l: 20, t: 5,  d: 1.6, dur: 12 },
+            { l: 95, t: 65, d: 3.2, dur: 9  }, { l: 70, t: 92, d: 0.9, dur: 8  },
+          ].map((p, i) => (
             <div
               key={i}
               className="absolute w-2 h-2 bg-white/20 rounded-full animate-float-gentle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${8 + Math.random() * 4}s`,
-              }}
+              style={{ left: `${p.l}%`, top: `${p.t}%`, animationDelay: `${p.d}s`, animationDuration: `${p.dur}s` }}
             />
           ))}
         </div>
@@ -300,7 +306,7 @@ export default function Home() {
       </section>
 
       {/* Begin with Guidance Section - White Background */}
-      <section className="py-16 md:py-24 bg-white relative overflow-hidden">
+      <section className="py-16 md:py-24 bg-white relative overflow-hidden wave-divider-top">
         {/* Decorative background elements */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-emerald-100/50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 animate-float-slow" />
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-teal-100/50 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 animate-float-gentle" style={{ animationDelay: '3s' }} />
@@ -328,7 +334,7 @@ export default function Home() {
           <ScrollReveal animation="zoom-in" delay={300}>
             <Button
             size="lg"
-            className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white px-10 py-6 text-lg md:text-xl font-lora shadow-2xl hover:shadow-3xl transition-all duration-300 rounded-xl hover:scale-105 animate-gradient magnetic-hover group"
+            className="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white px-10 py-6 text-lg md:text-xl font-lora shadow-2xl transition-all duration-300 rounded-xl animate-gradient btn-cta-glow btn-shimmer group"
             onClick={handleEnroll}
           >
             <div className="flex flex-col items-center gap-2">
@@ -413,7 +419,7 @@ export default function Home() {
                 { icon: Calendar, title: "Flexible Batches" },
               ].map((item, index) => (
                 <ScrollReveal key={index} animation="zoom-in" delay={index * 80}>
-                  <Card className="border-white/20 hover:shadow-xl transition-all duration-300 group bg-white/95 backdrop-blur-sm rounded-xl hover-lift tilt-card">
+                  <Card className="border-white/20 transition-all duration-300 group glass-card">
                     <CardContent className="p-4">
                       <div className="flex flex-col items-center text-center">
                         <div className="p-2.5 rounded-full bg-emerald-100 group-hover:bg-emerald-200 transition-all duration-300 mb-3 group-hover:scale-110 group-hover:rotate-6">
@@ -783,7 +789,7 @@ export default function Home() {
                 <div className="space-y-2 mb-4">
                   {[{ time: "5:30 AM - 6:30 AM" }, { time: "6:40 AM - 7:40 AM" }, { time: "7:50 AM - 8:50 AM" }].map(
                     (slot, i) => (
-                      <div key={i} className="flex items-center p-2 bg-amber-50/50 rounded-lg">
+                      <div key={i} className="time-slot">
                         <span className="font-lora font-semibold text-emerald-800 text-sm">{slot.time}</span>
                       </div>
                     ),

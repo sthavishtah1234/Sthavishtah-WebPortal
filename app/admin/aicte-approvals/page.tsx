@@ -28,6 +28,8 @@ import {
   Eye,
   Filter,
   AlertTriangle,
+  Instagram,
+  ExternalLink,
 } from "lucide-react"
 import Image from "next/image"
 import { getSupabaseBrowserClient } from "@/lib/supabase"
@@ -42,6 +44,8 @@ interface Submission {
   admin_note: string | null
   submitted_at: string
   reviewed_at: string | null
+  instagram_link: string | null
+  instagram_id: string | null
   student_name?: string
   event_name?: string
 }
@@ -231,6 +235,7 @@ export default function AdminAicteApprovalsPage() {
                   <th className="text-left p-3 text-sm font-semibold text-gray-700">Date</th>
                   <th className="text-left p-3 text-sm font-semibold text-gray-700">AI Score</th>
                   <th className="text-left p-3 text-sm font-semibold text-gray-700">Photo</th>
+                  <th className="text-left p-3 text-sm font-semibold text-gray-700 text-pink-700">Instagram</th>
                   <th className="text-left p-3 text-sm font-semibold text-gray-700">Status</th>
                   <th className="text-left p-3 text-sm font-semibold text-gray-700">Actions</th>
                 </tr>
@@ -254,6 +259,29 @@ export default function AdminAicteApprovalsPage() {
                         onClick={() => setViewPhoto(sub.photo_url)}
                       >
                         <Image src={sub.photo_url} alt="Photo" fill className="object-cover" />
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="flex flex-col gap-1 min-w-[140px]">
+                        {sub.instagram_id && (
+                          <span className="text-xs font-medium text-pink-700 flex items-center gap-1">
+                            <Instagram className="w-3 h-3" />
+                            @{sub.instagram_id}
+                          </span>
+                        )}
+                        {sub.instagram_link ? (
+                          <a
+                            href={sub.instagram_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:underline flex items-center gap-1 truncate max-w-[140px]"
+                          >
+                            <ExternalLink className="w-3 h-3 shrink-0" />
+                            View Post
+                          </a>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">No link</span>
+                        )}
                       </div>
                     </td>
                     <td className="p-3">{getStatusBadge(sub.status)}</td>

@@ -11,6 +11,8 @@ export async function POST(request: Request) {
     const studentId = formData.get("student_id") as string
     const eventId = formData.get("event_id") as string
     const aiScoreStr = formData.get("ai_score") as string
+    const instagramLink = (formData.get("instagram_link") as string) || null
+    const instagramId = (formData.get("instagram_id") as string) || null
 
     if (!image || !studentId || !eventId) {
       return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 })
@@ -66,6 +68,8 @@ export async function POST(request: Request) {
         photo_url: photoUrl,
         status: "pending",
         ai_score: aiScore,
+        instagram_link: instagramLink,
+        instagram_id: instagramId,
       })
       .select()
       .single()

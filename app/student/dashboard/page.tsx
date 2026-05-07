@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Dialog,
   DialogContent,
@@ -29,6 +31,8 @@ import {
   User,
   Mail,
   Phone,
+  Instagram,
+  Link2,
 } from "lucide-react"
 import Image from "next/image"
 
@@ -63,6 +67,8 @@ export default function StudentDashboard() {
   const [selectedEventForUpload, setSelectedEventForUpload] = useState<AicteEvent | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [viewPhoto, setViewPhoto] = useState<string | null>(null)
+  const [instagramLink, setInstagramLink] = useState("")
+  const [instagramId, setInstagramId] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const studentName = typeof window !== "undefined" ? localStorage.getItem("studentName") || "Student" : "Student"
@@ -107,6 +113,8 @@ export default function StudentDashboard() {
     setPreviewFile(null)
     setUploadError(null)
     setUploadSuccess(null)
+    setInstagramLink("")
+    setInstagramId("")
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,6 +176,15 @@ export default function StudentDashboard() {
   const handleUpload = async () => {
     if (!previewFile || !selectedEventForUpload || !studentId) return
 
+    if (!instagramLink.trim()) {
+      setUploadError("Please provide your Instagram post/story link.")
+      return
+    }
+    if (!instagramId.trim()) {
+      setUploadError("Please provide your Instagram username/ID.")
+      return
+    }
+
     setIsProcessing(true)
     setUploadError(null)
     setUploadSuccess(null)
@@ -199,6 +216,8 @@ export default function StudentDashboard() {
       uploadFormData.append("student_id", studentId)
       uploadFormData.append("event_id", selectedEventForUpload.id)
       uploadFormData.append("ai_score", (aiData.ai_score ?? "null").toString())
+      uploadFormData.append("instagram_link", instagramLink.trim())
+      uploadFormData.append("instagram_id", instagramId.trim())
 
       const uploadRes = await fetch("/api/aicte/submit", {
         method: "POST",
@@ -433,6 +452,39 @@ export default function StudentDashboard() {
               </Alert>
             )}
 
+            {/* Instagram fields — always shown */}
+            <div className="space-y-3 p-3 bg-pink-50/60 rounded-lg border border-pink-100">
+              <p className="text-xs font-semibold text-pink-700 flex items-center gap-1">
+                <Instagram className="w-3.5 h-3.5" /> Instagram Proof Required
+              </p>
+              <div className="space-y-1">
+                <Label htmlFor="ig-id" className="text-xs text-gray-600">Your Instagram Username / ID</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-400 text-sm">@</span>
+                  <Input
+                    id="ig-id"
+                    placeholder="your_username"
+                    value={instagramId}
+                    onChange={(e) => setInstagramId(e.target.value)}
+                    className="h-8 text-sm"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="ig-link" className="text-xs text-gray-600 flex items-center gap-1">
+                  <Link2 className="w-3 h-3" /> Instagram Post / Story Link
+                </Label>
+                <Input
+                  id="ig-link"
+                  placeholder="https://www.instagram.com/p/..."
+                  value={instagramLink}
+                  onChange={(e) => setInstagramLink(e.target.value)}
+                  className="h-8 text-sm"
+                />
+                <p className="text-[10px] text-gray-400">Share the direct link to your event post or story</p>
+              </div>
+            </div>
+
             {previewImage ? (
               <div className="space-y-3">
                 <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100">
@@ -463,7 +515,7 @@ export default function StudentDashboard() {
                     ) : (
                       <>
                         <Upload className="w-4 h-4 mr-2" />
-                        Submit Photo
+                        Submit
                       </>
                     )}
                   </Button>
@@ -471,11 +523,11 @@ export default function StudentDashboard() {
               </div>
             ) : (
               <div
-                className="border-2 border-dashed border-emerald-300 rounded-lg p-8 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/50 transition-colors"
+                className="border-2 border-dashed border-emerald-300 rounded-lg p-6 text-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/50 transition-colors"
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Camera className="w-10 h-10 mx-auto text-emerald-400 mb-3" />
-                <p className="text-sm font-medium text-gray-700">Click to select a photo</p>
+                <p className="text-sm font-medium text-gray-700">Click to select your event photo</p>
                 <p className="text-xs text-gray-500 mt-1">JPG, PNG or WebP — max 10MB</p>
                 <p className="text-xs text-emerald-600 mt-2">
                   Photo will be compressed and checked for authenticity
