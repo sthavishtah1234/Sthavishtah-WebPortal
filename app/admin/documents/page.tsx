@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { AdminLayout } from "@/components/admin-layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -60,7 +60,7 @@ interface User {
   email: string
 }
 
-export default function DocumentsPage() {
+function DocumentsPageContent() {
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState("general")
   const [documents, setDocuments] = useState<Document[]>([])
@@ -1206,5 +1206,19 @@ export default function DocumentsPage() {
         </Dialog>
       </div>
     </AdminLayout>
+  )
+}
+
+export default function DocumentsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <DocumentsPageContent />
+    </Suspense>
   )
 }

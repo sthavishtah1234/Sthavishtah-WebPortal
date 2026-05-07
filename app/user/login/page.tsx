@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,7 +11,7 @@ import { Loader2, ArrowLeft, Phone, Lock, Leaf, User } from "lucide-react"
 import Image from "next/image"
 import { isUserLoggedIn } from "@/lib/auth-client"
 
-export default function LoginPage() {
+function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectUrl = searchParams.get("redirect")
@@ -286,5 +286,19 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   )
 }

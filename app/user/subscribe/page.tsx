@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { UserLayout } from "@/components/user-layout"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -33,7 +33,7 @@ interface ReferralDiscount {
   code?: string
 }
 
-export default function SubscribePage() {
+function SubscribePageContent() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -675,5 +675,19 @@ export default function SubscribePage() {
         </div>
       </div>
     </UserLayout>
+  )
+}
+
+export default function SubscribePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <SubscribePageContent />
+    </Suspense>
   )
 }

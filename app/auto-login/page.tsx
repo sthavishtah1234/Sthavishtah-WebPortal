@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { generateDeviceFingerprint } from "@/lib/device-fingerprint"
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
-export default function AutoLogin() {
+function AutoLoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
@@ -148,4 +148,18 @@ export default function AutoLogin() {
   }
 
   return null
+}
+
+export default function AutoLogin() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <AutoLoginContent />
+    </Suspense>
+  )
 }

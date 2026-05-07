@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -53,7 +53,7 @@ interface BookerInfo {
 
 const PLATFORM_FEE_RATE = 0.025 // 2.5% platform fee
 
-export default function EventsPage() {
+function EventsPageContent() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
@@ -882,5 +882,19 @@ export default function EventsPage() {
         </div>
       </section>
     </div>
+  )
+}
+
+export default function EventsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <EventsPageContent />
+    </Suspense>
   )
 }

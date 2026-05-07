@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { notFound, useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
@@ -96,7 +96,7 @@ interface ComparisonValue {
   custom_value: string | null
 }
 
-export default function SubscriptionCategoryPage({ params }: { params: { slug: string } }) {
+function SubscriptionCategoryPageContent({ params }: { params: { slug: string } }) {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState<SubscriptionPage | null>(null)
   const [infoCards, setInfoCards] = useState<InfoCard[]>([])
@@ -927,5 +927,19 @@ export default function SubscriptionCategoryPage({ params }: { params: { slug: s
         }
       `}</style>
     </div>
+  )
+}
+
+export default function SubscriptionCategoryPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <SubscriptionCategoryPageContent />
+    </Suspense>
   )
 }

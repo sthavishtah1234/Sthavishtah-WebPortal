@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { PhoneVerification } from "@/components/phone-verification"
 
-export default function VerifyPhonePage() {
+function VerifyPhonePageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [initialPhone, setInitialPhone] = useState("")
@@ -37,5 +37,19 @@ export default function VerifyPhonePage() {
         <PhoneVerification onVerificationComplete={handleVerificationComplete} initialPhoneNumber={initialPhone} />
       </div>
     </div>
+  )
+}
+
+export default function VerifyPhonePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <VerifyPhonePageContent />
+    </Suspense>
   )
 }

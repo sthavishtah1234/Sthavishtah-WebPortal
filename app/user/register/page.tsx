@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dialog"
 import { X } from "lucide-react"
 
-export default function UserRegister() {
+function UserRegisterContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectUrl = searchParams.get("redirect")
@@ -602,5 +602,19 @@ export default function UserRegister() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function UserRegister() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <UserRegisterContent />
+    </Suspense>
   )
 }

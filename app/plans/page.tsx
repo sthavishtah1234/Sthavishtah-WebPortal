@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { getSupabaseBrowserClient } from "@/lib/supabase"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -54,7 +54,7 @@ interface Subscription {
   created_at: string
 }
 
-export default function PlansPage() {
+function PlansPageContent() {
   const [subscriptionPages, setSubscriptionPages] = useState<SubscriptionPage[]>([])
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
@@ -616,5 +616,19 @@ export default function PlansPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PlansPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="h-8 w-8 border-4 border-gray-200 border-t-emerald-600 rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <PlansPageContent />
+    </Suspense>
   )
 }
