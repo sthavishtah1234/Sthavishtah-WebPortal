@@ -55,13 +55,14 @@ function AdminLayout({ children }: AdminLayoutProps) {
       }
 
       const adminPassword = localStorage.getItem("adminPassword")
-      const validPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin123"
+      const adminAuthenticated = localStorage.getItem("adminAuthenticated")
 
-      if (adminPassword === validPassword) {
+      if (adminPassword && adminAuthenticated === "true") {
         setIsAuthenticated(true)
       } else {
         // Clear any invalid auth and redirect
         localStorage.removeItem("adminPassword")
+        localStorage.removeItem("adminAuthenticated")
         router.push("/admin/login")
         return
       }

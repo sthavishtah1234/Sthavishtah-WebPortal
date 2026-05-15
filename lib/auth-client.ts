@@ -102,8 +102,8 @@ export function isAdminLoggedIn(): boolean {
   try {
     if (typeof window === "undefined") return false
     const adminPassword = localStorage.getItem("adminPassword")
-    const validPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "admin123"
-    return adminPassword === validPassword
+    const adminAuthenticated = localStorage.getItem("adminAuthenticated")
+    return !!(adminPassword && adminAuthenticated === "true")
   } catch {
     return false
   }
