@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Calendar, MapPin, Plus, Trash2, Loader2, CheckCircle2 } from "lucide-react"
+import { Calendar, MapPin, Plus, Trash2, Loader2, CheckCircle2, Award } from "lucide-react"
 
 interface AicteEvent {
   id: string
@@ -22,6 +22,7 @@ interface AicteEvent {
   date: string
   day_of_week: string
   location: string
+  points: number
   is_active: boolean
   created_at: string
 }
@@ -38,6 +39,7 @@ export default function AdminAicteEventsPage() {
   const [date, setDate] = useState("")
   const [dayOfWeek, setDayOfWeek] = useState("")
   const [location, setLocation] = useState("")
+  const [points, setPoints] = useState(1)
 
   useEffect(() => {
     fetchEvents()
@@ -70,7 +72,7 @@ export default function AdminAicteEventsPage() {
       const res = await fetch("/api/aicte/admin-events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, date, day_of_week: dayOfWeek, location }),
+        body: JSON.stringify({ name, date, day_of_week: dayOfWeek, location, points }),
       })
 
       const data = await res.json()
@@ -80,6 +82,7 @@ export default function AdminAicteEventsPage() {
         setDate("")
         setDayOfWeek("")
         setLocation("")
+        setPoints(1)
         fetchEvents()
       } else {
         setError(data.error || "Failed to add event")
@@ -185,6 +188,18 @@ export default function AdminAicteEventsPage() {
                   onChange={(e) => setLocation(e.target.value)}
                 />
               </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-1"><Award className="h-3.5 w-3.5 text-emerald-600" /> AICTE Points *</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={100}
+                  placeholder="e.g. 2"
+                  value={points}
+                  onChange={(e) => setPoints(Math.max(1, parseInt(e.target.value) || 1))}
+                />
+                <p className="text-xs text-gray-500">Points awarded to student upon approval</p>
+              </div>
               <div className="md:col-span-2">
                 <Button type="submit" disabled={saving} className="bg-emerald-600 hover:bg-emerald-700">
                   {saving ? (
@@ -237,6 +252,10 @@ export default function AdminAicteEventsPage() {
                         <span className="flex items-center gap-1">
                           <MapPin className="w-3 h-3" />
                           {event.location}
+                        </span>
+                        <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                          <Award className="w-3 h-3" />
+                          {event.points ?? 1} pt{(event.points ?? 1) !== 1 ? "s" : ""}
                         </span>
                       </div>
                     </div>

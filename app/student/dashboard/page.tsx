@@ -42,6 +42,7 @@ interface AicteEvent {
   date: string
   day_of_week: string
   location: string
+  points: number
 }
 
 interface Submission {
@@ -58,6 +59,7 @@ export default function StudentDashboard() {
   const [events, setEvents] = useState<AicteEvent[]>([])
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(true)
+  const [aictePoints, setAictePoints] = useState<number>(0)
   const [uploadingEventId, setUploadingEventId] = useState<string | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null)
@@ -83,16 +85,19 @@ export default function StudentDashboard() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [eventsRes, subsRes] = await Promise.all([
+      const [eventsRes, subsRes, profileRes] = await Promise.all([
         fetch("/api/aicte/events"),
         fetch(`/api/aicte/submissions?student_id=${studentId}`),
+        fetch(`/api/aicte/student-profile?student_id=${studentId}`),
       ])
 
       const eventsData = await eventsRes.json()
       const subsData = await subsRes.json()
+      const profileData = await profileRes.json()
 
       if (eventsData.success) setEvents(eventsData.events || [])
       if (subsData.success) setSubmissions(subsData.submissions || [])
+      if (profileData.success) setAictePoints(profileData.aicte_points ?? 0)
     } catch (err) {
       console.error("Error fetching data:", err)
     } finally {
@@ -103,8 +108,6 @@ export default function StudentDashboard() {
   const getSubmissionForEvent = (eventId: string) => {
     return submissions.find((s) => s.event_id === eventId)
   }
-
-  const approvedCount = submissions.filter((s) => s.status === "approved").length
 
   const openUploadDialog = (event: AicteEvent) => {
     setSelectedEventForUpload(event)
@@ -330,15 +333,15 @@ export default function StudentDashboard() {
           <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white">
             <CardContent className="pt-6 text-center">
               <Award className="h-8 w-8 mx-auto mb-2 opacity-90" />
-              <p className="text-3xl font-bold">{approvedCount}</p>
+              <p className="text-3xl font-bold">{aictePoints}</p>
               <p className="text-sm opacity-90">AICTE Points Earned</p>
-              <p className="text-xs mt-2 opacity-75">{submissions.length} total submissions</p>
+              <p className="text-xs mt-2 opacity-75">{submissions.filter(s => s.status === "approved").length} event{submissions.filter(s => s.status === "approved").length !== 1 ? "s" : ""} approved</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Events Section */}
-        <div>
+        <div id="submissions">
           <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Camera className="h-5 w-5 text-emerald-600" />
             Event Photo Submissions
@@ -372,6 +375,10 @@ export default function StudentDashboard() {
                         <span className="flex items-center gap-1 text-xs">
                           <MapPin className="w-3 h-3" />
                           {event.location}
+                        </span>
+                        <span className="flex items-center gap-1 text-xs text-emerald-600 font-semibold">
+                          <Award className="w-3 h-3" />
+                          {event.points ?? 1} AICTE pt{(event.points ?? 1) !== 1 ? "s" : ""} on approval
                         </span>
                       </CardDescription>
                     </CardHeader>

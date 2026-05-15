@@ -23,7 +23,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { name, date, day_of_week, location } = await request.json()
+    const { name, date, day_of_week, location, points } = await request.json()
 
     if (!name || !date || !day_of_week || !location) {
       return NextResponse.json({ success: false, error: "All fields are required" }, { status: 400 })
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     const { data, error } = await supabase
       .from("aicte_events")
-      .insert({ name, date, day_of_week, location })
+      .insert({ name, date, day_of_week, location, points: points ?? 1 })
       .select()
       .single()
 

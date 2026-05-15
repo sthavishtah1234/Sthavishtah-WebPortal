@@ -118,6 +118,10 @@ export default function AdminAicteApprovalsPage() {
   }
 
   const handleApprove = async (id: string) => {
+    // Optimistic update — update UI instantly
+    setSubmissions((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, status: "approved", reviewed_at: new Date().toISOString() } : s))
+    )
     setProcessingId(id)
     try {
       const res = await fetch("/api/aicte/review", {
@@ -125,17 +129,35 @@ export default function AdminAicteApprovalsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ submission_id: id, action: "approved" }),
       })
-
       const data = await res.json()
-      if (data.success) fetchSubmissions()
+      if (!data.success) {
+        // Revert on failure
+        setSubmissions((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, status: "pending", reviewed_at: null } : s))
+        )
+      }
     } catch (err) {
       console.error("Approve error:", err)
+      // Revert on error
+      setSubmissions((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, status: "pending", reviewed_at: null } : s))
+      )
     } finally {
       setProcessingId(null)
     }
   }
 
   const handleReject = async (id: string) => {
+    // Optimistic update — update UI instantly
+    setSubmissions((prev) =>
+      prev.map((s) =>
+        s.id === id
+          ? { ...s, status: "rejected", reviewed_at: new Date().toISOString(), admin_note: rejectNote || null }
+          : s
+      )
+    )
+    setRejectingId(null)
+    setRejectNote("")
     setProcessingId(id)
     try {
       const res = await fetch("/api/aicte/review", {
@@ -147,15 +169,18 @@ export default function AdminAicteApprovalsPage() {
           admin_note: rejectNote || null,
         }),
       })
-
       const data = await res.json()
-      if (data.success) {
-        setRejectingId(null)
-        setRejectNote("")
-        fetchSubmissions()
+      if (!data.success) {
+        // Revert on failure
+        setSubmissions((prev) =>
+          prev.map((s) => (s.id === id ? { ...s, status: "pending", reviewed_at: null, admin_note: null } : s))
+        )
       }
     } catch (err) {
       console.error("Reject error:", err)
+      setSubmissions((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, status: "pending", reviewed_at: null, admin_note: null } : s))
+      )
     } finally {
       setProcessingId(null)
     }
@@ -187,12 +212,12 @@ export default function AdminAicteApprovalsPage() {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">AICTE Photo Approvals</h1>
-            <p className="text-gray-600 mt-1">
+            <div className="text-gray-600 mt-1">
               Review and approve student event photo submissions
               {pendingCount > 0 && (
                 <Badge className="ml-2 bg-amber-100 text-amber-700">{pendingCount} pending</Badge>
               )}
-            </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">

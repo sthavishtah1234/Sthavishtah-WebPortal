@@ -68,10 +68,9 @@ export default function StudentLayout({ children }: StudentLayoutProps) {
     },
     {
       title: "AICTE Submissions",
-      href: "/student/dashboard",
+      href: "/student/dashboard#submissions",
       icon: Camera,
-      active: false,
-      description: "View from dashboard",
+      active: pathname === "/student/dashboard",
     },
   ]
 

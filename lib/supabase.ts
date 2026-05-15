@@ -25,21 +25,30 @@ export const getSupabaseBrowserClient = () => {
   return browserClient
 }
 
-// For server-side usage (main database)
+// For server-side usage (main database) — uses service role key to bypass RLS
 export const getSupabaseServerClient = () => {
   if (serverClient) return serverClient
 
   const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  // Prefer service role key (bypasses RLS); fall back to anon key if not set
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabaseUrl || !supabaseKey) {
     const missingVars = []
     if (!supabaseUrl) missingVars.push("SUPABASE_URL or NEXT_PUBLIC_SUPABASE_URL")
-    if (!supabaseAnonKey) missingVars.push("SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY")
+    if (!supabaseKey) missingVars.push("SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY")
     throw new Error(`Missing environment variables: ${missingVars.join(", ")}`)
   }
 
-  serverClient = supabaseCreateClient(supabaseUrl, supabaseAnonKey)
+  serverClient = supabaseCreateClient(supabaseUrl, supabaseKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  })
 
   return serverClient
 }
