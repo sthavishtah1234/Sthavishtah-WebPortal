@@ -18,6 +18,7 @@ import { format } from "date-fns"
 import { cn, isValidYoutubeUrl } from "@/lib/utils"
 import { getSupabaseBrowserClient } from "@/lib/supabase"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
 
 export default function EditCourse({ params }: { params: { id: string } }) {
@@ -42,6 +43,7 @@ export default function EditCourse({ params }: { params: { id: string } }) {
     batch_number: "",
     custom_batch_time: "",
     subscription_id: null as number | null,
+    fix_timezone: false,
   })
 
   const [subscriptions, setSubscriptions] = useState<{ id: number; name: string }[]>([])
@@ -85,6 +87,7 @@ export default function EditCourse({ params }: { params: { id: string } }) {
           batch_number: data.batch_number || "",
           custom_batch_time: data.custom_batch_time || "",
           subscription_id: data.subscription_id || null,
+          fix_timezone: data.fix_timezone || false,
         })
       }
     } catch (error) {
@@ -139,6 +142,8 @@ export default function EditCourse({ params }: { params: { id: string } }) {
         batch_number: formData.is_predefined_batch ? formData.batch_number : null,
         custom_batch_time: !formData.is_predefined_batch ? formData.custom_batch_time : null,
         subscription_id: formData.subscription_id,
+        fix_timezone: formData.fix_timezone,
+        timezone_name: formData.fix_timezone ? 'Asia/Kolkata' : null,
       }
 
       // Add scheduling fields based on type
@@ -386,6 +391,23 @@ export default function EditCourse({ params }: { params: { id: string } }) {
                     />
                   </div>
                 )}
+
+                {/* Timezone Fix */}
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="fix-timezone"
+                      checked={formData.fix_timezone}
+                      onCheckedChange={(checked) => handleChange("fix_timezone", checked === true)}
+                    />
+                    <Label htmlFor="fix-timezone" className="font-medium">
+                      Fix to a single timezone (IST)
+                    </Label>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Enable for international clients. Batch time is treated as IST and auto-converted to each user's local timezone.
+                  </p>
+                </div>
               </div>
 
               {/* Subscription Selection */}

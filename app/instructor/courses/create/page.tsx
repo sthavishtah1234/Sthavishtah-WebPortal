@@ -43,6 +43,7 @@ export default function InstructorCreateCoursePage() {
   const [poseProgress, setPoseProgress] = useState(0)
   const [poseSessionId, setPoseSessionId] = useState<string | null>(null)
   const [poseError, setPoseError] = useState<string | null>(null)
+  const [fixTimezone, setFixTimezone] = useState(false)
 
   const generateId = () => `batch_${Date.now()}_${Math.floor(Math.random() * 1000)}`
 
@@ -280,6 +281,8 @@ export default function InstructorCreateCoursePage() {
         instructor_id: instructorId,
         is_predefined_batch: isPredefinedBatch,
         instructor_pose_session_id: poseSessionId || null,
+        fix_timezone: fixTimezone,
+        timezone_name: fixTimezone ? 'Asia/Kolkata' : null,
       }
 
       const courseEntries = []
@@ -572,6 +575,23 @@ export default function InstructorCreateCoursePage() {
                     {errors.customBatches && <p className="text-sm text-red-500">{errors.customBatches}</p>}
                   </div>
                 )}
+
+                {/* Timezone Fix */}
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="fix-timezone"
+                      checked={fixTimezone}
+                      onCheckedChange={(checked) => setFixTimezone(checked === true)}
+                    />
+                    <Label htmlFor="fix-timezone" className="font-medium">
+                      Fix to a single timezone (IST)
+                    </Label>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Enable for international clients. Batch time is treated as IST and auto-converted to each user's local timezone.
+                  </p>
+                </div>
               </div>
 
               {/* Subscription Selection - Only show subscriptions instructor has access to */}

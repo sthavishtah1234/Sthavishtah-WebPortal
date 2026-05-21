@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { CalendarIcon } from "lucide-react"
@@ -48,6 +49,7 @@ export default function EditCourse({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string>("")
   const [submitting, setSubmitting] = useState<boolean>(false)
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
+  const [fixTimezone, setFixTimezone] = useState(false)
 
   useEffect(() => {
     fetchCourse()
@@ -87,6 +89,7 @@ export default function EditCourse({ params }: { params: { id: string } }) {
         setCustomBatchTime(data.custom_batch_time || "")
         setSubscriptionId(data.subscription_id ? data.subscription_id.toString() : null)
         setLanguage(data.language || "English")
+        setFixTimezone(data.fix_timezone || false)
 
         // Set scheduling type and related fields
         setSchedulingType(data.scheduling_type || "date")
@@ -186,6 +189,8 @@ export default function EditCourse({ params }: { params: { id: string } }) {
         youtube_link: youtubeLink,
         language,
         scheduling_type: schedulingType,
+        fix_timezone: fixTimezone,
+        timezone_name: fixTimezone ? 'Asia/Kolkata' : null,
       }
 
       // Add the appropriate scheduling field based on type
@@ -433,6 +438,22 @@ export default function EditCourse({ params }: { params: { id: string } }) {
                     {errors.customBatchTime && <p className="text-sm text-red-500">{errors.customBatchTime}</p>}
                   </div>
                 )}
+                {/* Timezone Fix */}
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="fix-timezone"
+                      checked={fixTimezone}
+                      onCheckedChange={(checked) => setFixTimezone(checked === true)}
+                    />
+                    <Label htmlFor="fix-timezone" className="font-medium">
+                      Fix to a single timezone (IST)
+                    </Label>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Enable this for international clients. The batch time is treated as IST and converted to each user's local timezone.
+                  </p>
+                </div>
               </div>
 
               {/* Subscription Selection */}

@@ -830,50 +830,52 @@ function EventsPageContent() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {events.map((event) => (
-                <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="h-40 bg-gradient-to-br from-emerald-400 to-purple-500 flex items-center justify-center">
-                    <Calendar className="w-16 h-16 text-white/80" />
+                <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full border">
+                  <div className="h-24 sm:h-40 bg-gradient-to-br from-emerald-400 to-purple-500 flex items-center justify-center shrink-0">
+                    <Calendar className="w-8 h-8 sm:w-16 sm:h-16 text-white/80" />
                   </div>
-                  <CardHeader>
-                    <CardTitle className="font-playfair text-xl">{event.event_name}</CardTitle>
+                  <CardHeader className="p-3 sm:p-6 pb-1 sm:pb-2">
+                    <CardTitle className="font-playfair text-sm sm:text-xl line-clamp-1">{event.event_name}</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Calendar className="w-4 h-4" />
-                      {formatDate(event.event_date)}
+                  <CardContent className="p-3 sm:p-6 pt-0 space-y-2 sm:space-y-3 flex-grow flex flex-col justify-between">
+                    <div className="space-y-1.5 sm:space-y-3">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
+                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-emerald-600" />
+                      <span className="truncate">{formatDate(event.event_date)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Clock className="w-4 h-4" />
-                      {formatTime(event.event_time)}
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
+                      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-emerald-600" />
+                      <span className="truncate">{formatTime(event.event_time)}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4" />
-                      {event.venue}
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
+                      <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-emerald-600" />
+                      <span className="truncate">{event.venue}</span>
                     </div>
-                    <div className="flex items-center justify-between pt-2">
-                      <div className="flex items-center gap-4">
-                        <span className="flex items-center gap-1 text-emerald-600 font-semibold">
-                          <IndianRupee className="w-4 h-4" />
+                    </div>
+                    <div className="space-y-2 pt-2 border-t mt-auto">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <span className="flex items-center gap-0.5 text-emerald-600 font-semibold text-xs sm:text-base">
+                          <IndianRupee className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                           {event.ticket_price || "Free"}
                         </span>
-                        <span className="flex items-center gap-1 text-sm text-gray-500">
-                          <Users className="w-4 h-4" />
+                        <span className="flex items-center gap-0.5 text-[10px] sm:text-xs text-gray-500">
+                          <Users className="w-3 h-3 sm:w-4 sm:h-4" />
                           {event.available_seats} left
                         </span>
                       </div>
+                      {event.description && (
+                        <p className="text-[10px] sm:text-sm text-gray-500 line-clamp-1 sm:line-clamp-2">{event.description}</p>
+                      )}
+                      <Button
+                        onClick={() => openBookingPage(event)}
+                        disabled={event.available_seats <= 0}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 py-1 sm:py-2 text-xs sm:text-sm h-8 sm:h-10 shrink-0"
+                      >
+                        {event.available_seats <= 0 ? "Sold Out" : "Book Now"}
+                      </Button>
                     </div>
-                    {event.description && (
-                      <p className="text-sm text-gray-600 line-clamp-2">{event.description}</p>
-                    )}
-                    <Button
-                      onClick={() => openBookingPage(event)}
-                      disabled={event.available_seats <= 0}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 mt-2"
-                    >
-                      {event.available_seats <= 0 ? "Sold Out" : "Book Now"}
-                    </Button>
                   </CardContent>
                 </Card>
               ))}

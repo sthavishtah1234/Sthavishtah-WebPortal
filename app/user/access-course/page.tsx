@@ -50,6 +50,8 @@ interface Course {
   subscription_week?: number | null
   video_type?: string // Added to differentiate video sources
   video_duration?: number // Added for consistency with fetched data
+  fix_timezone?: boolean
+  timezone_name?: string | null
 }
 
 interface GroupedCourse {
@@ -68,6 +70,8 @@ interface GroupedCourse {
   scheduling_type?: string
   subscription_day?: number | null
   subscription_week?: number | null
+  fix_timezone?: boolean
+  timezone_name?: string | null
 }
 
 // Add a new interface for Subscription
@@ -171,7 +175,22 @@ function AccessCourseContent() {
     }
   }, [searchParams])
 
-  const getBatchDisplayName = (batch: Batch): string => {
+  const getBatchDisplayName = (course: GroupedCourse, batch: Batch): string => {
+    if (course.fix_timezone) {
+      const startTime = getScheduledStartTime(course, batch)
+      const duration = course.videoDuration || 3600
+      const endTime = new Date(startTime.getTime() + duration * 1000)
+      
+      const options: Intl.DateTimeFormatOptions = {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      }
+      const startStr = startTime.toLocaleTimeString([], options)
+      const endStr = endTime.toLocaleTimeString([], options)
+      return `Batch (${startStr} to ${endStr} Local)`
+    }
+
     if (batch.custom_batch_time) {
       return `Batch ${batch.custom_batch_time}`
     }
@@ -251,6 +270,8 @@ function AccessCourseContent() {
           scheduling_type: course.scheduling_type,
           subscription_day: course.subscription_day,
           subscription_week: course.subscription_week,
+          fix_timezone: course.fix_timezone,
+          timezone_name: course.timezone_name,
         }
       }
 
@@ -295,8 +316,6 @@ function AccessCourseContent() {
 
   // Get the scheduled start time for a course batch
   const getScheduledStartTime = (course: GroupedCourse, batch: Batch): Date => {
-    const today = new Date(course.scheduled_date)
-
     let startHour = 0
     let startMinute = 0
     const batch_number = batch.batch_number
@@ -330,17 +349,27 @@ function AccessCourseContent() {
       startMinute = minute
     }
 
+    if (course.fix_timezone) {
+      // Construct date string pinned to Indian Standard Time (IST, +05:30)
+      const isoStr = `${course.scheduled_date}T${String(startHour).padStart(2, "0")}:${String(startMinute).padStart(2, "0")}:00+05:30`
+      return new Date(isoStr)
+    }
+
+    const today = new Date(course.scheduled_date)
     today.setHours(startHour, startMinute, 0, 0)
     return today
   }
 
   const isSessionLive = (course: GroupedCourse, batch: Batch): boolean => {
     const now = new Date()
-    const userLocalDate = now.toLocaleDateString("en-CA")
-    const scheduledLocalDate = new Date(course.scheduled_date).toLocaleDateString("en-CA")
 
-    if (scheduledLocalDate !== userLocalDate) {
-      return false
+    if (!course.fix_timezone) {
+      const userLocalDate = now.toLocaleDateString("en-CA")
+      const scheduledLocalDate = new Date(course.scheduled_date).toLocaleDateString("en-CA")
+
+      if (scheduledLocalDate !== userLocalDate) {
+        return false
+      }
     }
 
     const scheduledStart = getScheduledStartTime(course, batch)
@@ -356,11 +385,14 @@ function AccessCourseContent() {
 
   const isSessionEnded = (course: GroupedCourse, batch: Batch): boolean => {
     const now = new Date()
-    const userLocalDate = now.toLocaleDateString("en-CA")
-    const scheduledLocalDate = new Date(course.scheduled_date).toLocaleDateString("en-CA")
 
-    if (scheduledLocalDate !== userLocalDate) {
-      return false
+    if (!course.fix_timezone) {
+      const userLocalDate = now.toLocaleDateString("en-CA")
+      const scheduledLocalDate = new Date(course.scheduled_date).toLocaleDateString("en-CA")
+
+      if (scheduledLocalDate !== userLocalDate) {
+        return false
+      }
     }
 
     const scheduledStart = getScheduledStartTime(course, batch)
@@ -1136,7 +1168,7 @@ function AccessCourseContent() {
                                       }`}
                                     >
                                       <div className="flex justify-between items-center mb-2">
-                                        <span className="font-medium">{getBatchDisplayName(batch)}</span>
+                                        <span className="font-medium">{getBatchDisplayName(course, batch)}</span>
                                         {batchIsLive && isCourseAvailable ? (
                                           <Badge className="bg-green-500 text-white">LIVE</Badge>
                                         ) : batchHasEnded && isCourseAvailable ? (
@@ -1244,7 +1276,7 @@ function AccessCourseContent() {
                                   }`}
                                 >
                                   <div className="flex justify-between items-center">
-                                    <span className="font-medium">{getBatchDisplayName(batch)}</span>
+                                    <span className="font-medium">{getBatchDisplayName(course, batch)}</span>
                                     <Badge
                                       variant="outline"
                                       className={

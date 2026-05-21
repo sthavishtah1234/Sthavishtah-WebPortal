@@ -87,13 +87,13 @@ export default function LiveSessionPage({ params }: LiveSessionProps) {
           console.log("[v0] Extracted YouTube ID using utility:", ytId)
           if (ytId) {
             setVideoId(ytId)
-            const scheduledDate = new Date(data.scheduled_date)
+            let hours = 0
+            let minutes = 0
+            let timeParsed = false
 
             if (data.is_predefined_batch && data.batch_number) {
               // Parse predefined batch times based on batch number
               const batchNum = Number.parseInt(data.batch_number)
-              let hours = 0
-              let minutes = 0
 
               if (batchNum === 1) {
                 hours = 5
@@ -114,24 +114,32 @@ export default function LiveSessionPage({ params }: LiveSessionProps) {
                 hours = 19
                 minutes = 50 // Evening Batch 6 (7:50 to 8:50)
               }
-
-              scheduledDate.setHours(hours, minutes, 0, 0)
-              setSessionStartTime(scheduledDate)
-              console.log("[v0] Predefined batch session start time:", scheduledDate)
+              timeParsed = true
             } else if (data.custom_batch_time) {
               // Parse custom batch time (e.g., "9:00 AM")
               const timeMatch = data.custom_batch_time.match(/(\d+):(\d+)\s*(AM|PM)/)
               if (timeMatch) {
-                let hours = Number.parseInt(timeMatch[1])
-                const minutes = Number.parseInt(timeMatch[2])
+                hours = Number.parseInt(timeMatch[1])
+                minutes = Number.parseInt(timeMatch[2])
                 const period = timeMatch[3]
 
                 if (period === "PM" && hours !== 12) hours += 12
                 if (period === "AM" && hours === 12) hours = 0
+                timeParsed = true
+              }
+            }
 
+            if (timeParsed) {
+              if (data.fix_timezone) {
+                const isoStr = `${data.scheduled_date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00+05:30`
+                const calculatedStartTime = new Date(isoStr)
+                setSessionStartTime(calculatedStartTime)
+                console.log("[v0] Timezone-fixed session start time:", calculatedStartTime)
+              } else {
+                const scheduledDate = new Date(data.scheduled_date)
                 scheduledDate.setHours(hours, minutes, 0, 0)
                 setSessionStartTime(scheduledDate)
-                console.log("[v0] Custom batch session start time:", scheduledDate)
+                console.log("[v0] Local batch session start time:", scheduledDate)
               }
             }
           } else {

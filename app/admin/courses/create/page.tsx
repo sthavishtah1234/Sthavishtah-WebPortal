@@ -57,6 +57,7 @@ export default function CreateCoursePage() {
   const [totalFramesUploaded, setTotalFramesUploaded] = useState(0)
   const [poseProcessingStatus, setPoseProcessingStatus] = useState("")
   const [instructorVideoUrl, setInstructorVideoUrl] = useState<string>("")
+  const [fixTimezone, setFixTimezone] = useState(false)
 
   const handleDateSelect = (date: Date | undefined) => {
     setScheduledDate(date)
@@ -356,6 +357,8 @@ export default function CreateCoursePage() {
         is_predefined_batch: isPredefinedBatch, // Set the is_predefined_batch flag
         video_type: videoType,
         instructor_pose_session_id: poseSessionId || null,
+        fix_timezone: fixTimezone,
+        timezone_name: fixTimezone ? 'Asia/Kolkata' : null,
       }
 
       console.log("[v0] Course data prepared:", courseData)
@@ -878,6 +881,24 @@ export default function CreateCoursePage() {
                     {errors.customBatches && <p className="text-sm text-red-500">{errors.customBatches}</p>}
                   </div>
                 )}
+
+                {/* Timezone Fix */}
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="fix-timezone"
+                      checked={fixTimezone}
+                      onCheckedChange={(checked) => setFixTimezone(checked === true)}
+                    />
+                    <Label htmlFor="fix-timezone" className="font-medium">
+                      Fix to a single timezone (IST)
+                    </Label>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Enable this for international clients. When checked, the batch time is treated as Indian Standard Time (IST)
+                    and automatically converted to each user's local timezone — so all users join at the same absolute moment globally.
+                  </p>
+                </div>
               </div>
 
               {/* Multiple Subscription Selection */}
