@@ -69,8 +69,8 @@ export default function OurTeamPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 -z-10">
+      <section className="relative py-20 overflow-hidden isolate">
+        <div className="absolute inset-0 z-0">
           <Image
             src="/yoga-studio-peaceful-atmosphere.jpg"
             alt="Team Background"
@@ -81,7 +81,7 @@ export default function OurTeamPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-900/90 via-green-800/85 to-teal-800/90"></div>
         </div>
 
-        <div className="container mx-auto px-4 text-center relative">
+        <div className="container mx-auto px-4 text-center relative z-10">
           <span className="inline-block px-4 py-1 rounded-full bg-white/15 backdrop-blur-sm text-white text-sm font-medium mb-4 shadow-md border border-white/20">
             <Users className="inline-block mr-1 h-4 w-4" />
             Meet Our Team

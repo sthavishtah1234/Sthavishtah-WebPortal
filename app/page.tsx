@@ -1015,7 +1015,7 @@ export default function Home() {
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     Register
                   </Link>
-                  <Link href="/instructors" className="flex items-center gap-2 hover:text-white/80 transition-colors group">
+                  <Link href="/our-team" className="flex items-center gap-2 hover:text-white/80 transition-colors group">
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     Instructors
                   </Link>

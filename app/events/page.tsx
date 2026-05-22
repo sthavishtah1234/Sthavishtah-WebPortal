@@ -27,6 +27,7 @@ import {
   FileText,
   ShoppingCart,
   Check,
+  Globe,
 } from "lucide-react"
 
 interface Event {
@@ -80,6 +81,9 @@ function EventsPageContent() {
   const [applyingReferral, setApplyingReferral] = useState(false)
   const [referralError, setReferralError] = useState<string | null>(null)
 
+  // Timezone toggle state
+  const [useLocalTime, setUseLocalTime] = useState<boolean>(false)
+
   useEffect(() => {
     fetchEvents()
     fetchRazorpayKey()
@@ -87,6 +91,15 @@ function EventsPageContent() {
     const ref = searchParams.get("ref")
     if (ref) {
       validateInfluencerCode(ref)
+    }
+    // Timezone: load preference or auto-detect
+    const saved = localStorage.getItem("tz_pref")
+    if (saved !== null) {
+      setUseLocalTime(saved === "local")
+    } else {
+      // Auto-detect: default to local if user is NOT in India
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
+      setUseLocalTime(tz !== "Asia/Kolkata" && tz !== "Asia/Calcutta")
     }
   }, [searchParams])
 
@@ -158,21 +171,76 @@ function EventsPageContent() {
     }
   }
 
-  const formatTime = (time: string) => {
+  // Build a Date object representing the event instant in IST
+  const toISTDate = (dateStr: string, timeStr: string) => {
+    // dateStr = "YYYY-MM-DD", timeStr = "HH:MM" or "HH:MM:SS"
+    const [y, m, d] = dateStr.split("-").map(Number)
+    const parts = timeStr.split(":").map(Number)
+    const h = parts[0] || 0
+    const min = parts[1] || 0
+    const sec = parts[2] || 0
+    // IST is UTC+5:30 → create a UTC date offset by -5:30
+    const utc = Date.UTC(y, m - 1, d, h - 5, min - 30, sec)
+    return new Date(utc)
+  }
+
+  const handleToggleTz = (local: boolean) => {
+    setUseLocalTime(local)
+    localStorage.setItem("tz_pref", local ? "local" : "ist")
+  }
+
+  const formatTime = (time: string, dateStr?: string) => {
+    if (useLocalTime && dateStr) {
+      const d = toISTDate(dateStr, time)
+      return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true, timeZoneName: "short" })
+    }
+    // IST display (simple 12-hour conversion)
     const [hours, minutes] = time.split(":")
     const h = Number.parseInt(hours)
     const ampm = h >= 12 ? "PM" : "AM"
     const hour12 = h % 12 || 12
-    return `${hour12}:${minutes} ${ampm}`
+    return `${hour12}:${minutes} ${ampm} IST`
   }
 
-  const formatDate = (date: string) => {
+  const formatDate = (date: string, timeStr?: string) => {
+    if (useLocalTime && timeStr) {
+      const d = toISTDate(date, timeStr)
+      return d.toLocaleDateString("en-IN", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    }
     return new Date(date).toLocaleDateString("en-IN", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     })
+  }
+
+  // Short helpers for the horizontal card date badge
+  const getMonthShort = (date: string, timeStr?: string) => {
+    if (useLocalTime && timeStr) {
+      const d = toISTDate(date, timeStr)
+      return d.toLocaleDateString("en-US", { month: "short" }).toUpperCase()
+    }
+    return new Date(date + "T00:00:00").toLocaleDateString("en-US", { month: "short" }).toUpperCase()
+  }
+  const getDayNum = (date: string, timeStr?: string) => {
+    if (useLocalTime && timeStr) {
+      const d = toISTDate(date, timeStr)
+      return d.getDate()
+    }
+    return new Date(date + "T00:00:00").getDate()
+  }
+  const getWeekday = (date: string, timeStr?: string) => {
+    if (useLocalTime && timeStr) {
+      const d = toISTDate(date, timeStr)
+      return d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()
+    }
+    return new Date(date + "T00:00:00").toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()
   }
 
   const openBookingPage = (event: Event) => {
@@ -468,8 +536,8 @@ function EventsPageContent() {
                 <div className="bg-green-50 rounded-lg p-6 text-left mb-6">
                   <h3 className="font-semibold text-gray-900 mb-4">{bookingResult.event.event_name}</h3>
                   <div className="space-y-2 text-sm">
-                    <p><strong>Date:</strong> {formatDate(bookingResult.event.event_date)}</p>
-                    <p><strong>Time:</strong> {formatTime(bookingResult.event.event_time)}</p>
+                    <p><strong>Date:</strong> {formatDate(bookingResult.event.event_date, bookingResult.event.event_time)}</p>
+                    <p><strong>Time:</strong> {formatTime(bookingResult.event.event_time, bookingResult.event.event_date)}</p>
                     <p><strong>Venue:</strong> {bookingResult.event.venue}</p>
                     <p><strong>Tickets:</strong> {bookingResult.bookings.length}</p>
                   </div>
@@ -543,7 +611,7 @@ function EventsPageContent() {
                   <Calendar className="h-5 w-5 text-emerald-600" />
                   <div>
                     <p className="text-sm text-gray-500">Date</p>
-                    <p className="font-semibold">{formatDate(selectedEvent.event_date)}</p>
+                    <p className="font-semibold">{formatDate(selectedEvent.event_date, selectedEvent.event_time)}</p>
                   </div>
                 </div>
 
@@ -551,7 +619,7 @@ function EventsPageContent() {
                   <Clock className="h-5 w-5 text-emerald-600" />
                   <div>
                     <p className="text-sm text-gray-500">Time</p>
-                    <p className="font-semibold">{formatTime(selectedEvent.event_time)}</p>
+                    <p className="font-semibold">{formatTime(selectedEvent.event_time, selectedEvent.event_date)}</p>
                   </div>
                 </div>
 
@@ -810,17 +878,44 @@ function EventsPageContent() {
         </div>
       </header>
 
-      <section className="py-12 text-center">
+      <section className="py-10 sm:py-12 text-center">
         <h1 className="font-playfair text-3xl sm:text-4xl font-bold text-emerald-800 mb-4">
           Upcoming Events
         </h1>
-        <p className="font-lora text-gray-600 max-w-2xl mx-auto px-4">
+        <p className="font-lora text-gray-600 max-w-2xl mx-auto px-4 mb-6">
           Join our special yoga workshops, retreats, and community gatherings
         </p>
+
+        {/* Timezone Toggle */}
+        <div className="flex items-center justify-center gap-2">
+          <Globe className="w-4 h-4 text-emerald-600" />
+          <div className="inline-flex items-center bg-white rounded-full p-1 shadow-sm border border-gray-200">
+            <button
+              onClick={() => handleToggleTz(false)}
+              className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 ${
+                !useLocalTime
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              IST
+            </button>
+            <button
+              onClick={() => handleToggleTz(true)}
+              className={`px-3 py-1.5 text-xs sm:text-sm font-medium rounded-full transition-all duration-200 ${
+                useLocalTime
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Local Time
+            </button>
+          </div>
+        </div>
       </section>
 
       <section className="pb-16 px-4">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-4xl">
           {events.length === 0 ? (
             <Card className="text-center py-12">
               <CardContent>
@@ -830,53 +925,74 @@ function EventsPageContent() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+            <div className="flex flex-col gap-5">
               {events.map((event) => (
-                <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full border">
-                  <div className="h-24 sm:h-40 bg-gradient-to-br from-emerald-400 to-purple-500 flex items-center justify-center shrink-0">
-                    <Calendar className="w-8 h-8 sm:w-16 sm:h-16 text-white/80" />
-                  </div>
-                  <CardHeader className="p-3 sm:p-6 pb-1 sm:pb-2">
-                    <CardTitle className="font-playfair text-sm sm:text-xl line-clamp-1">{event.event_name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 sm:p-6 pt-0 space-y-2 sm:space-y-3 flex-grow flex flex-col justify-between">
-                    <div className="space-y-1.5 sm:space-y-3">
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
-                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-emerald-600" />
-                      <span className="truncate">{formatDate(event.event_date)}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
-                      <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-emerald-600" />
-                      <span className="truncate">{formatTime(event.event_time)}</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-600">
-                      <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-emerald-600" />
-                      <span className="truncate">{event.venue}</span>
-                    </div>
-                    </div>
-                    <div className="space-y-2 pt-2 border-t mt-auto">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <span className="flex items-center gap-0.5 text-emerald-600 font-semibold text-xs sm:text-base">
-                          <IndianRupee className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                          {event.ticket_price || "Free"}
-                        </span>
-                        <span className="flex items-center gap-0.5 text-[10px] sm:text-xs text-gray-500">
-                          <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                          {event.available_seats} left
-                        </span>
+                <Card
+                  key={event.id}
+                  className="overflow-hidden hover:shadow-xl transition-all duration-300 border group"
+                >
+                  <div className="flex flex-col sm:flex-row">
+                    {/* Left: Date Badge */}
+                    <div className="bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center px-6 py-4 sm:py-0 sm:w-36 sm:min-h-[180px] shrink-0">
+                      <div className="text-center text-white">
+                        <p className="text-xs sm:text-sm font-semibold uppercase tracking-widest opacity-90">
+                          {getMonthShort(event.event_date, event.event_time)}
+                        </p>
+                        <p className="text-3xl sm:text-5xl font-bold leading-none my-1">
+                          {getDayNum(event.event_date, event.event_time)}
+                        </p>
+                        <p className="text-[10px] sm:text-xs font-medium uppercase tracking-wider opacity-80">
+                          {getWeekday(event.event_date, event.event_time)}
+                        </p>
                       </div>
-                      {event.description && (
-                        <p className="text-[10px] sm:text-sm text-gray-500 line-clamp-1 sm:line-clamp-2">{event.description}</p>
-                      )}
-                      <Button
-                        onClick={() => openBookingPage(event)}
-                        disabled={event.available_seats <= 0}
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 py-1 sm:py-2 text-xs sm:text-sm h-8 sm:h-10 shrink-0"
-                      >
-                        {event.available_seats <= 0 ? "Sold Out" : "Book Now"}
-                      </Button>
                     </div>
-                  </CardContent>
+
+                    {/* Right: Details */}
+                    <div className="flex-1 p-4 sm:p-6 flex flex-col justify-between gap-3">
+                      <div>
+                        <h3 className="font-playfair text-lg sm:text-xl font-semibold text-gray-900 mb-1 group-hover:text-emerald-700 transition-colors">
+                          {event.event_name}
+                        </h3>
+                        {event.description && (
+                          <p className="text-sm text-gray-500 line-clamp-2 mb-3">{event.description}</p>
+                        )}
+
+                        {/* Meta Row */}
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-gray-600">
+                          <span className="flex items-center gap-1.5">
+                            <Clock className="w-4 h-4 text-emerald-600" />
+                            {formatTime(event.event_time, event.event_date)}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <MapPin className="w-4 h-4 text-emerald-600" />
+                            {event.venue}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Users className="w-4 h-4 text-emerald-600" />
+                            {event.available_seats} seats left
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Footer: Price + CTA */}
+                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                        <span className="flex items-center gap-0.5 text-emerald-600 font-bold text-lg">
+                          {event.ticket_price ? (
+                            <><IndianRupee className="w-4 h-4" />{event.ticket_price}</>
+                          ) : (
+                            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">FREE</Badge>
+                          )}
+                        </span>
+                        <Button
+                          onClick={() => openBookingPage(event)}
+                          disabled={event.available_seats <= 0}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-sm px-6"
+                        >
+                          {event.available_seats <= 0 ? "Sold Out" : "Book Now →"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 </Card>
               ))}
             </div>

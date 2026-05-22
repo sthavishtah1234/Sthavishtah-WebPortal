@@ -2,6 +2,11 @@ import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 
 export function middleware(request: NextRequest) {
+  // Redirect old /instructors path to the proper showcase page /our-team
+  if (request.nextUrl.pathname === "/instructors") {
+    return NextResponse.redirect(new URL("/our-team", request.url))
+  }
+
   // Only run middleware on client-side navigation
   if (request.nextUrl.pathname.startsWith("/admin") && !request.nextUrl.pathname.startsWith("/admin/login")) {
     // For server-side rendering, just continue
