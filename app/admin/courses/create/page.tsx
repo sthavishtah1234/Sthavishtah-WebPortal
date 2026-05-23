@@ -357,8 +357,6 @@ export default function CreateCoursePage() {
         is_predefined_batch: isPredefinedBatch, // Set the is_predefined_batch flag
         video_type: videoType,
         instructor_pose_session_id: poseSessionId || null,
-        fix_timezone: fixTimezone,
-        timezone_name: fixTimezone ? 'Asia/Kolkata' : null,
       }
 
       console.log("[v0] Course data prepared:", courseData)

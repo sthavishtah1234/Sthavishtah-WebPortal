@@ -281,8 +281,6 @@ export default function InstructorCreateCoursePage() {
         instructor_id: instructorId,
         is_predefined_batch: isPredefinedBatch,
         instructor_pose_session_id: poseSessionId || null,
-        fix_timezone: fixTimezone,
-        timezone_name: fixTimezone ? 'Asia/Kolkata' : null,
       }
 
       const courseEntries = []

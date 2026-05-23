@@ -142,8 +142,6 @@ export default function EditCourse({ params }: { params: { id: string } }) {
         batch_number: formData.is_predefined_batch ? formData.batch_number : null,
         custom_batch_time: !formData.is_predefined_batch ? formData.custom_batch_time : null,
         subscription_id: formData.subscription_id,
-        fix_timezone: formData.fix_timezone,
-        timezone_name: formData.fix_timezone ? 'Asia/Kolkata' : null,
       }
 
       // Add scheduling fields based on type

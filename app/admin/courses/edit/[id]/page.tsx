@@ -189,8 +189,6 @@ export default function EditCourse({ params }: { params: { id: string } }) {
         youtube_link: youtubeLink,
         language,
         scheduling_type: schedulingType,
-        fix_timezone: fixTimezone,
-        timezone_name: fixTimezone ? 'Asia/Kolkata' : null,
       }
 
       // Add the appropriate scheduling field based on type

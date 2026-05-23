@@ -191,7 +191,13 @@ export async function POST(request: Request) {
       const expectedSignature = crypto.createHmac("sha256", webhookSecret).update(payload).digest("hex")
 
       if (signature !== expectedSignature) {
-        console.error("Invalid webhook signature")
+        const maskedSecret = webhookSecret.length > 4 
+          ? `${webhookSecret.slice(0, 2)}...${webhookSecret.slice(-2)}` 
+          : "***";
+        console.error("Invalid webhook signature mismatch!");
+        console.error(`Received signature: ${signature}`);
+        console.error(`Expected signature: ${expectedSignature}`);
+        console.error(`Using Webhook Secret (masked): ${maskedSecret} (length: ${webhookSecret.length})`);
         return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
       }
       console.log("Webhook signature verified successfully")
