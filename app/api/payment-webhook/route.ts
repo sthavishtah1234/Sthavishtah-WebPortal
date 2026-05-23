@@ -1,8 +1,174 @@
 export const dynamic = "force-dynamic"
+export const maxDuration = 30
 
 import { NextResponse } from "next/server"
 import crypto from "crypto"
 import { getSupabaseServerClient } from "@/lib/supabase"
+
+/**
+ * Safely update a payment record in the database.
+ * Tries with webhook_received first; if the column doesn't exist, retries without it.
+ */
+async function safeUpdatePayment(
+  supabase: ReturnType<typeof getSupabaseServerClient>,
+  paymentId: string,
+  status: string
+) {
+  // Try with webhook_received column first
+  const { error } = await supabase
+    .from("payments")
+    .update({ status, webhook_received: true })
+    .eq("payment_id", paymentId)
+
+  if (error) {
+    // If the error is about the webhook_received column not existing, retry without it
+    if (error.message?.includes("webhook_received") || error.code === "PGRST204") {
+      console.warn("webhook_received column not found in payments table, updating without it")
+      const { error: retryError } = await supabase
+        .from("payments")
+        .update({ status })
+        .eq("payment_id", paymentId)
+
+      if (retryError) {
+        console.error("Error updating payment status (retry):", retryError)
+      } else {
+        console.log("Payment status updated successfully (without webhook_received)")
+      }
+    } else {
+      console.error("Error updating payment status:", error)
+    }
+  } else {
+    console.log("Payment status updated successfully")
+  }
+}
+
+/**
+ * Safely insert a payment record into the database.
+ * Tries with webhook_received first; if the column doesn't exist, retries without it.
+ */
+async function safeInsertPayment(
+  supabase: ReturnType<typeof getSupabaseServerClient>,
+  record: Record<string, any>
+) {
+  const { error } = await supabase.from("payments").insert([record])
+
+  if (error) {
+    if (error.message?.includes("webhook_received") || error.code === "PGRST204") {
+      console.warn("webhook_received column not found in payments table, inserting without it")
+      const { webhook_received, ...recordWithoutWebhook } = record
+      const { error: retryError } = await supabase.from("payments").insert([recordWithoutWebhook])
+
+      if (retryError) {
+        console.error("Error inserting payment record (retry):", retryError)
+      } else {
+        console.log("Payment record created successfully (without webhook_received)")
+      }
+    } else {
+      console.error("Error inserting payment record:", error)
+    }
+  } else {
+    console.log("Payment record created successfully")
+  }
+}
+
+/**
+ * Process the webhook event asynchronously.
+ * All database operations are wrapped in try/catch to prevent any errors
+ * from propagating and causing a non-200 response.
+ */
+async function processWebhookEvent(event: any) {
+  try {
+    if (event.event === "payment.authorized" || event.event === "payment.captured") {
+      const payment = event.payload.payment.entity
+      console.log("Processing payment:", payment.id)
+
+      const supabase = getSupabaseServerClient()
+
+      // First check if the payment exists
+      const { data: existingPayment } = await supabase
+        .from("payments")
+        .select("*")
+        .eq("payment_id", payment.id)
+        .single()
+
+      if (existingPayment) {
+        // Update existing payment
+        await safeUpdatePayment(supabase, payment.id, "completed")
+      } else {
+        // Payment doesn't exist in our database yet
+        // This might happen if the webhook arrives before the payment verification completes
+        console.log("Payment not found in database, creating new record")
+
+        const orderId = payment.order_id
+        const amount = payment.amount / 100 // Convert from paise to rupees
+
+        // Get order details to find user and subscription info
+        const { data: orderData } = await supabase
+          .from("razorpay_orders")
+          .select("*")
+          .eq("order_id", orderId)
+          .single()
+
+        if (orderData) {
+          // Create payment record
+          await safeInsertPayment(supabase, {
+            payment_id: payment.id,
+            order_id: orderId,
+            user_id: orderData.user_id,
+            subscription_id: orderData.subscription_id,
+            amount: amount,
+            status: "completed",
+            webhook_received: true,
+          })
+
+          // Create subscription if it doesn't exist
+          try {
+            const { data: existingSub } = await supabase
+              .from("user_subscriptions")
+              .select("*")
+              .eq("payment_id", payment.id)
+              .single()
+
+            if (!existingSub) {
+              const startDate = new Date()
+              const endDate = new Date(startDate)
+              endDate.setDate(endDate.getDate() + orderData.duration_days)
+
+              await supabase.from("user_subscriptions").insert([
+                {
+                  user_id: orderData.user_id,
+                  subscription_id: orderData.subscription_id,
+                  start_date: startDate.toISOString(),
+                  end_date: endDate.toISOString(),
+                  is_active: true,
+                  payment_id: payment.id,
+                  terms_accepted: true,
+                },
+              ])
+
+              console.log("Created new subscription from webhook data")
+            }
+          } catch (subError) {
+            console.error("Error creating subscription from webhook:", subError)
+          }
+        } else {
+          console.log("Order not found for payment:", payment.id)
+        }
+      }
+    } else if (event.event === "payment.failed") {
+      const payment = event.payload.payment.entity
+      console.log("Payment failed:", payment.id)
+
+      const supabase = getSupabaseServerClient()
+      await safeUpdatePayment(supabase, payment.id, "failed")
+    }
+
+    console.log("Webhook event processed successfully:", event.event)
+  } catch (error) {
+    // Log but never throw — we already returned 200 to Razorpay
+    console.error("Error processing webhook event (non-fatal):", error)
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -34,117 +200,26 @@ export async function POST(request: Request) {
     }
 
     // Parse the payload
-    const event = JSON.parse(payload)
+    let event: any
+    try {
+      event = JSON.parse(payload)
+    } catch (parseError) {
+      console.error("Failed to parse webhook payload:", parseError)
+      return NextResponse.json({ error: "Invalid payload" }, { status: 400 })
+    }
+
     console.log("Webhook event type:", event.event)
 
-    // Handle different event types
-    if (event.event === "payment.authorized" || event.event === "payment.captured") {
-      // Get payment details
-      const payment = event.payload.payment.entity
-      console.log("Payment authorized:", payment.id)
-
-      // Update payment status in database
-      const supabase = getSupabaseServerClient()
-
-      // First check if the payment exists
-      const { data: existingPayment } = await supabase
-        .from("payments")
-        .select("*")
-        .eq("payment_id", payment.id)
-        .single()
-
-      if (existingPayment) {
-        // Update existing payment
-        const { error } = await supabase
-          .from("payments")
-          .update({ status: "completed", webhook_received: true })
-          .eq("payment_id", payment.id)
-
-        if (error) {
-          console.error("Error updating payment status:", error)
-        } else {
-          console.log("Payment status updated successfully")
-        }
-      } else {
-        // Payment doesn't exist in our database yet
-        // This might happen if the webhook arrives before the payment verification completes
-        console.log("Payment not found in database, creating new record")
-
-        // Try to extract order details from the payment
-        const orderId = payment.order_id
-        const amount = payment.amount / 100 // Convert from paise to rupees
-
-        // Get order details to find user and subscription info
-        const { data: orderData } = await supabase.from("razorpay_orders").select("*").eq("order_id", orderId).single()
-
-        if (orderData) {
-          // Create payment record
-          await supabase.from("payments").insert([
-            {
-              payment_id: payment.id,
-              order_id: orderId,
-              user_id: orderData.user_id,
-              subscription_id: orderData.subscription_id,
-              amount: amount,
-              status: "completed",
-              webhook_received: true,
-            },
-          ])
-
-          // Create subscription if it doesn't exist
-          const { data: existingSub } = await supabase
-            .from("user_subscriptions")
-            .select("*")
-            .eq("payment_id", payment.id)
-            .single()
-
-          if (!existingSub) {
-            // Calculate subscription dates
-            const startDate = new Date()
-            const endDate = new Date(startDate)
-            endDate.setDate(endDate.getDate() + orderData.duration_days)
-
-            await supabase.from("user_subscriptions").insert([
-              {
-                user_id: orderData.user_id,
-                subscription_id: orderData.subscription_id,
-                start_date: startDate.toISOString(),
-                end_date: endDate.toISOString(),
-                is_active: true,
-                payment_id: payment.id,
-                terms_accepted: true,
-              },
-            ])
-
-            console.log("Created new subscription from webhook data")
-          }
-        } else {
-          console.log("Order not found for payment:", payment.id)
-        }
-      }
-    } else if (event.event === "payment.failed") {
-      // Handle failed payment
-      const payment = event.payload.payment.entity
-      console.log("Payment failed:", payment.id)
-
-      // Update payment status in database
-      const supabase = getSupabaseServerClient()
-      const { error } = await supabase
-        .from("payments")
-        .update({ status: "failed", webhook_received: true })
-        .eq("payment_id", payment.id)
-
-      if (error) {
-        console.error("Error updating payment status:", error)
-      } else {
-        console.log("Payment status updated successfully")
-      }
-    }
+    // Process the event — all DB work happens here but errors are caught internally
+    // so that we always return 200 to Razorpay
+    await processWebhookEvent(event)
 
     // Always return a 200 response to acknowledge receipt of the webhook
     return NextResponse.json({ received: true })
   } catch (error) {
     console.error("Error processing webhook:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    // Even on unexpected errors, return 200 to prevent Razorpay from retrying
+    // and eventually disabling the webhook. The error is logged for debugging.
+    return NextResponse.json({ received: true, warning: "processed with errors" })
   }
 }
