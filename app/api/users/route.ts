@@ -8,9 +8,10 @@ export async function GET(request: Request) {
     const supabase = getSupabaseServerClient()
 
     const adminPassword = request.headers.get("x-admin-password")
-    const validAdminPassword = process.env.ADMIN_PASSWORD
+    const { verifyAdminPassword } = require("@/lib/auth-admin")
+    const isAuth = await verifyAdminPassword(adminPassword)
 
-    if (!adminPassword || adminPassword !== validAdminPassword) {
+    if (!isAuth) {
       return NextResponse.json({ success: false, error: "Unauthorized access" }, { status: 401 })
     }
 

@@ -395,53 +395,49 @@ export default function CreateCoursePage() {
       }
 
       // Handle batch information based on whether it's predefined or custom
+      let courseEntries = []
+
       if (isPredefinedBatch) {
         if (selectedBatches && selectedBatches.length > 0) {
-          const courseEntries = []
-
           for (const batchNumber of selectedBatches) {
-            const batchCourseData = {
+            courseEntries.push({
               ...courseData,
               batch_number: batchNumber,
               custom_batch_time: null,
-            }
-            courseEntries.push(batchCourseData)
+            })
           }
-
-          const { data, error } = await getSupabaseBrowserClient().from("courses").insert(courseEntries).select()
-
-          if (error) throw error
-
-          router.push("/admin/courses")
-          return
         }
       } else {
         if (customBatches && customBatches.length > 0) {
-          const courseEntries = []
-
           for (const batch of customBatches) {
             if (batch.time.trim()) {
-              const customBatchCourseData = {
+              courseEntries.push({
                 ...courseData,
                 batch_number: null,
                 custom_batch_time: batch.time,
-              }
-              courseEntries.push(customBatchCourseData)
+              })
             }
           }
-
-          const { data, error } = await getSupabaseBrowserClient().from("courses").insert(courseEntries).select()
-
-          if (error) throw error
-
-          router.push("/admin/courses")
-          return
         }
       }
 
-      const { data, error } = await getSupabaseBrowserClient().from("courses").insert([courseData]).select()
+      if (courseEntries.length === 0) {
+        courseEntries.push(courseData)
+      }
 
-      if (error) throw error
+      console.log("[v0] Sending course creation request:", courseEntries)
+      const res = await fetch("/api/courses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ courses: courseEntries }),
+      })
+
+      const result = await res.json()
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || "Failed to create course")
+      }
 
       router.push("/admin/courses")
     } catch (error) {

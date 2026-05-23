@@ -307,9 +307,22 @@ export default function InstructorCreateCoursePage() {
         }
       }
 
-      const { data, error } = await supabase.from("courses").insert(courseEntries).select()
+      if (courseEntries.length === 0) {
+        courseEntries.push(courseData)
+      }
 
-      if (error) throw error
+      const res = await fetch("/api/courses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ courses: courseEntries }),
+      })
+
+      const result = await res.json()
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || "Failed to create course")
+      }
 
       router.push("/instructor/courses")
     } catch (error) {

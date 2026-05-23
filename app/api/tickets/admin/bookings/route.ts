@@ -2,10 +2,12 @@ export const dynamic = "force-dynamic"
 
 import { NextResponse } from "next/server"
 import { getSupabaseServerClient } from "@/lib/supabase"
+import { verifyAdminPassword } from "@/lib/auth-admin"
 
 export async function GET(request: Request) {
   const authHeader = request.headers.get("x-admin-password")
-  if (authHeader !== process.env.ADMIN_PASSWORD) {
+  const isAuth = await verifyAdminPassword(authHeader)
+  if (!isAuth) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
   }
 
@@ -59,7 +61,8 @@ export async function GET(request: Request) {
 // DELETE - Delete a booking (seats are recalculated dynamically so no need to manually update available_seats)
 export async function DELETE(request: Request) {
   const authHeader = request.headers.get("x-admin-password")
-  if (authHeader !== process.env.ADMIN_PASSWORD) {
+  const isAuth = await verifyAdminPassword(authHeader)
+  if (!isAuth) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
   }
 

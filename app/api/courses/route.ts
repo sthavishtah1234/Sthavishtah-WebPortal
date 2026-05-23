@@ -21,3 +21,28 @@ export async function GET() {
     return NextResponse.json({ success: false, error: "An unexpected error occurred" }, { status: 500 })
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json()
+    const { courses } = body
+
+    if (!courses || !Array.isArray(courses)) {
+      return NextResponse.json({ success: false, error: "Invalid courses data" }, { status: 400 })
+    }
+
+    const supabase = getSupabaseServerClient()
+    const { data, error } = await supabase.from("courses").insert(courses).select()
+
+    if (error) {
+      console.error("Error inserting courses:", error)
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ success: true, data })
+  } catch (error: any) {
+    console.error("Unexpected error in courses POST API:", error)
+    return NextResponse.json({ success: false, error: error.message || "An unexpected error occurred" }, { status: 500 })
+  }
+}
+

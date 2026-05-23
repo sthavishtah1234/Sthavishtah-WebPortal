@@ -2,11 +2,13 @@ export const dynamic = "force-dynamic"
 
 import { NextResponse } from "next/server"
 import { getSupabaseServerClient } from "@/lib/supabase"
+import { verifyAdminPassword } from "@/lib/auth-admin"
 
 // GET - List all events for admin (including inactive, with dynamically computed available_seats)
 export async function GET(request: Request) {
   const authHeader = request.headers.get("x-admin-password")
-  if (authHeader !== process.env.ADMIN_PASSWORD) {
+  const isAuth = await verifyAdminPassword(authHeader)
+  if (!isAuth) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
   }
 
@@ -60,7 +62,8 @@ export async function GET(request: Request) {
 // PUT - Update event
 export async function PUT(request: Request) {
   const authHeader = request.headers.get("x-admin-password")
-  if (authHeader !== process.env.ADMIN_PASSWORD) {
+  const isAuth = await verifyAdminPassword(authHeader)
+  if (!isAuth) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
   }
 
@@ -94,7 +97,8 @@ export async function PUT(request: Request) {
 // DELETE - Delete event
 export async function DELETE(request: Request) {
   const authHeader = request.headers.get("x-admin-password")
-  if (authHeader !== process.env.ADMIN_PASSWORD) {
+  const isAuth = await verifyAdminPassword(authHeader)
+  if (!isAuth) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 })
   }
 
