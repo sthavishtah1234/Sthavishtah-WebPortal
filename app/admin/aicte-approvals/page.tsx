@@ -186,15 +186,28 @@ export default function AdminAicteApprovalsPage() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "approved":
-        return <Badge className="bg-green-100 text-green-700 border-green-200"><CheckCircle2 className="w-3 h-3 mr-1" /> Approved</Badge>
-      case "rejected":
-        return <Badge className="bg-red-100 text-red-700 border-red-200"><XCircle className="w-3 h-3 mr-1" /> Rejected</Badge>
-      default:
-        return <Badge className="bg-amber-100 text-amber-700 border-amber-200"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>
-    }
+  const getStatusBadge = (status: string, reviewedAt: string | null = null) => {
+    const isResubmitted = status === "pending" && reviewedAt !== null
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-1">
+          {status === "approved" && (
+            <Badge className="bg-green-100 text-green-700 border-green-200"><CheckCircle2 className="w-3 h-3 mr-1" /> Approved</Badge>
+          )}
+          {status === "rejected" && (
+            <Badge className="bg-red-100 text-red-700 border-red-200"><XCircle className="w-3 h-3 mr-1" /> Rejected</Badge>
+          )}
+          {status === "pending" && (
+            <Badge className="bg-amber-100 text-amber-700 border-amber-200"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>
+          )}
+        </div>
+        {isResubmitted && (
+          <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[10px] px-1.5 py-0.5">
+            ↩ Re-submitted
+          </Badge>
+        )}
+      </div>
+    )
   }
 
   const getAiScoreBadge = (score: number | null) => {
@@ -309,7 +322,7 @@ export default function AdminAicteApprovalsPage() {
                         )}
                       </div>
                     </td>
-                    <td className="p-3">{getStatusBadge(sub.status)}</td>
+                    <td className="p-3">{getStatusBadge(sub.status, sub.reviewed_at)}</td>
                     <td className="p-3">
                       {sub.status === "pending" ? (
                         <div className="flex items-center gap-2">

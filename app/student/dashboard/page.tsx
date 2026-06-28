@@ -67,6 +67,7 @@ export default function StudentDashboard() {
   const [previewFile, setPreviewFile] = useState<File | null>(null)
   const [showUploadDialog, setShowUploadDialog] = useState(false)
   const [selectedEventForUpload, setSelectedEventForUpload] = useState<AicteEvent | null>(null)
+  const [isResubmission, setIsResubmission] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [viewPhoto, setViewPhoto] = useState<string | null>(null)
   const [instagramLink, setInstagramLink] = useState("")
@@ -109,9 +110,10 @@ export default function StudentDashboard() {
     return submissions.find((s) => s.event_id === eventId)
   }
 
-  const openUploadDialog = (event: AicteEvent) => {
+  const openUploadDialog = (event: AicteEvent, resubmit = false) => {
     setSelectedEventForUpload(event)
     setShowUploadDialog(true)
+    setIsResubmission(resubmit)
     setPreviewImage(null)
     setPreviewFile(null)
     setUploadError(null)
@@ -230,7 +232,11 @@ export default function StudentDashboard() {
       const uploadData = await uploadRes.json()
 
       if (uploadData.success) {
-        setUploadSuccess("Photo submitted successfully! It's now pending admin review.")
+        setUploadSuccess(
+          isResubmission
+            ? "Photo re-submitted successfully! It's now pending admin review again."
+            : "Photo submitted successfully! It's now pending admin review."
+        )
         setShowUploadDialog(false)
         fetchData() // Refresh
       } else {
@@ -406,12 +412,26 @@ export default function StudentDashboard() {
                             </div>
                           </div>
 
-                          {submission.admin_note && (
-                            <div className={`text-xs p-2 rounded ${
-                              submission.status === "rejected"
-                                ? "bg-red-50 text-red-700 border border-red-200"
-                                : "bg-gray-50 text-gray-600"
-                            }`}>
+                          {submission.status === "rejected" && (
+                            <div className="space-y-2">
+                              {submission.admin_note && (
+                                <div className="text-xs p-2 rounded bg-red-50 text-red-700 border border-red-200">
+                                  <strong>Rejection reason:</strong> {submission.admin_note}
+                                </div>
+                              )}
+                              <Button
+                                onClick={() => openUploadDialog(event, true)}
+                                className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+                                size="sm"
+                              >
+                                <Upload className="w-3.5 h-3.5 mr-2" />
+                                Try Again / Re-upload
+                              </Button>
+                            </div>
+                          )}
+
+                          {submission.status !== "rejected" && submission.admin_note && (
+                            <div className="text-xs p-2 rounded bg-gray-50 text-gray-600">
                               <strong>Admin note:</strong> {submission.admin_note}
                             </div>
                           )}
@@ -444,12 +464,19 @@ export default function StudentDashboard() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Camera className="h-5 w-5 text-emerald-600" />
-              Upload Event Photo
+              {isResubmission ? "Re-upload Event Photo" : "Upload Event Photo"}
             </DialogTitle>
             <DialogDescription>
               {selectedEventForUpload?.name} — {selectedEventForUpload?.date}
             </DialogDescription>
           </DialogHeader>
+
+          {isResubmission && (
+            <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+              <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-amber-600" />
+              <span>Your previous submission was rejected. Upload a new photo to re-submit for admin review.</span>
+            </div>
+          )}
 
           <div className="space-y-4">
             {uploadError && (
