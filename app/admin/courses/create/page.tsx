@@ -253,7 +253,7 @@ export default function CreateCoursePage() {
           body: JSON.stringify({
             courseId: tempCourseId,
             videoName: videoFile.name,
-            videoUrl: youtubeLink || instructorVideoUrl, // Use youtubeLink from form
+            videoUrl: youtubeLink || instructorVideoUrl || null, // Snapshot at upload time; API also falls back to courses.youtube_link
             poses: batch,
             is_final: false,
           }),

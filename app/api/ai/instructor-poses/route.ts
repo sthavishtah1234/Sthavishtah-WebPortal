@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic"
 
 import { type NextRequest, NextResponse } from "next/server"
 import { getAISupabaseClient } from "@/lib/ai-supabase-server"
+import { getSupabaseServerClient } from "@/lib/supabase"
 
 export async function GET(request: NextRequest) {
   try {
@@ -45,13 +46,32 @@ export async function GET(request: NextRequest) {
       landmarks: pose.landmarks || [],
     }))
 
+    // If video_url is missing in instructor_poses, fall back to courses.youtube_link
+    let videoUrl: string | null = session.video_url || null
+    if (!videoUrl && session.course_id) {
+      try {
+        const supabase = getSupabaseServerClient()
+        const { data: courseData } = await supabase
+          .from("courses")
+          .select("youtube_link")
+          .eq("id", session.course_id)
+          .single()
+        if (courseData?.youtube_link) {
+          videoUrl = courseData.youtube_link
+          console.log("[instructor-poses] Resolved video_url from courses.youtube_link:", videoUrl)
+        }
+      } catch (e) {
+        console.warn("[instructor-poses] Could not fetch fallback youtube_link from courses:", e)
+      }
+    }
+
     return NextResponse.json({
       poses,
-      video_url: session.video_url,
+      video_url: videoUrl,
       session: {
         id: session.id,
         course_id: session.course_id,
-        video_url: session.video_url,
+        video_url: videoUrl,
         total_frames: session.total_frames,
         processed_at: session.processed_at,
       },
